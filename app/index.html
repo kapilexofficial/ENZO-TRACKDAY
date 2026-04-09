@@ -236,10 +236,77 @@
   .metric.late { --accent: var(--pink); }
 
   .dash-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px;
     margin-bottom: 24px;
   }
   @media (max-width: 1100px) { .dash-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- DONUT CHART ---------- */
+  .panel-evolution { display: flex; flex-direction: column; }
+  .donut-wrap {
+    position: relative;
+    width: 220px; height: 220px;
+    margin: 8px auto 16px;
+  }
+  .donut-chart { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .donut-chart circle.track {
+    fill: none; stroke: var(--bg-3); stroke-width: 22;
+  }
+  .donut-chart circle.seg {
+    fill: none; stroke-width: 22; stroke-linecap: butt;
+    transform-origin: 100px 100px;
+  }
+  @keyframes donutIn {
+    from { opacity: 0; stroke-width: 0; }
+    to { opacity: 1; stroke-width: 22; }
+  }
+  .donut-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .donut-pct {
+    font-size: 44px; font-weight: 900; letter-spacing: -2px;
+    color: var(--text); line-height: 1;
+    background: linear-gradient(135deg, #fff 0%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .donut-lbl {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--muted); font-weight: 700; margin-top: 6px;
+  }
+  .donut-legend {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 10px;
+  }
+  .donut-legend .leg-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; background: var(--bg-3); border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .donut-legend .leg-dot {
+    width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+  }
+  .donut-legend .leg-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--muted); font-weight: 600; flex: 1;
+  }
+  .donut-legend .leg-num {
+    font-size: 13px; font-weight: 800; color: var(--text);
+  }
+  .evolution-divider {
+    height: 1px; background: var(--line); margin: 16px -4px 14px;
+  }
+  .panel-subheader {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); font-weight: 700; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-subheader::before {
+    content: ""; width: 3px; height: 12px; background: var(--gold); border-radius: 2px;
+  }
   .panel {
     background: var(--bg-2); border: 1px solid var(--line);
     border-radius: 14px; padding: 24px;
@@ -850,8 +917,18 @@
         <h2>Progresso por Área</h2>
         <div id="progress-list"></div>
       </div>
-      <div class="panel">
-        <h2>Próximos Prazos</h2>
+      <div class="panel panel-evolution">
+        <h2>Evolução do Projeto</h2>
+        <div class="donut-wrap">
+          <svg class="donut-chart" id="donut-chart" viewBox="0 0 200 200" aria-label="Gráfico de progresso"></svg>
+          <div class="donut-center">
+            <div class="donut-pct" id="donut-pct">0%</div>
+            <div class="donut-lbl">concluído</div>
+          </div>
+        </div>
+        <div class="donut-legend" id="donut-legend"></div>
+        <div class="evolution-divider"></div>
+        <h3 class="panel-subheader">Próximos Prazos</h3>
         <div id="deadline-list"></div>
       </div>
     </div>
@@ -1624,6 +1701,75 @@ function renderFilters() {
   });
 }
 
+// ---------- DONUT CHART ----------
+function renderDonut({ total, done, doing, todo, backlog }) {
+  const svg = document.getElementById("donut-chart");
+  if (!svg) return;
+  const R = 80;
+  const CX = 100, CY = 100;
+  const C = 2 * Math.PI * R;
+  const pctDone = total ? Math.round((done / total) * 100) : 0;
+
+  const segs = [
+    { key: "done",    value: done,    color: "#22c55e" },
+    { key: "doing",   value: doing,   color: "#f59e0b" },
+    { key: "todo",    value: todo,    color: "#3b82f6" },
+    { key: "backlog", value: backlog, color: "#3a3a48" },
+  ].filter(s => s.value > 0);
+
+  // track + segments
+  let svgContent = `<circle class="track" cx="${CX}" cy="${CY}" r="${R}"/>`;
+  let offset = 0;
+  if (total > 0) {
+    segs.forEach((s, i) => {
+      const len = (s.value / total) * C;
+      const gap = C - len;
+      svgContent += `<circle class="seg" cx="${CX}" cy="${CY}" r="${R}"
+        stroke="${s.color}"
+        stroke-dasharray="${len.toFixed(2)} ${gap.toFixed(2)}"
+        stroke-dashoffset="${(-offset).toFixed(2)}"
+        style="animation: donutIn 0.8s ease-out ${i * 0.1}s both"/>`;
+      offset += len;
+    });
+  }
+  svg.innerHTML = svgContent;
+
+  // animate the center percent
+  const pctEl = document.getElementById("donut-pct");
+  animateNumber(pctEl, pctDone, "%");
+
+  // legend
+  const legend = document.getElementById("donut-legend");
+  const LEGEND_ITEMS = [
+    { label: "Concluído", value: done, color: "#22c55e" },
+    { label: "Em Andamento", value: doing, color: "#f59e0b" },
+    { label: "A Fazer", value: todo, color: "#3b82f6" },
+    { label: "Backlog", value: backlog, color: "#3a3a48" },
+  ];
+  legend.innerHTML = LEGEND_ITEMS.map(l => `
+    <div class="leg-item">
+      <span class="leg-dot" style="background:${l.color}"></span>
+      <span class="leg-label">${l.label}</span>
+      <span class="leg-num">${l.value}</span>
+    </div>
+  `).join("");
+}
+
+function animateNumber(el, target, suffix = "") {
+  if (!el) return;
+  const start = parseInt(el.textContent) || 0;
+  const duration = 800;
+  const t0 = performance.now();
+  function step(now) {
+    const t = Math.min(1, (now - t0) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const v = Math.round(start + (target - start) * eased);
+    el.textContent = v + suffix;
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
 // ---------- DASHBOARD ----------
 function renderDashboard() {
   const tasks = state.tasks;
@@ -1672,12 +1818,15 @@ function renderDashboard() {
     pl.appendChild(row);
   });
 
+  // donut chart — evolução do projeto
+  renderDonut({ total, done, doing, todo, backlog: total - done - doing - todo });
+
   // deadlines
   const dl = document.getElementById("deadline-list");
   const upcoming = tasks
     .filter(t => t.deadline && t.status !== "CONCLUIDO")
     .sort((a,b) => new Date(a.deadline) - new Date(b.deadline))
-    .slice(0, 6);
+    .slice(0, 4);
   if (!upcoming.length) {
     dl.innerHTML = `<div class="empty">Nenhuma tarefa com prazo definido ainda. Defina prazos clicando numa tarefa.</div>`;
   } else {
