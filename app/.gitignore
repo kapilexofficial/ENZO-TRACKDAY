@@ -1,0 +1,13 @@
+# secrets — nunca commitar
+.supabase-db-pass.txt
+*.env
+*.env.local
+
+# dados locais antigos (hoje tudo fica no Supabase)
+data/tasks.json
+
+# dev / sistema
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/

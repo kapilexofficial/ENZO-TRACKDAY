@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a22"/>
+      <stop offset="100%" stop-color="#0a0a0c"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff2a20"/>
+      <stop offset="100%" stop-color="#8b0400"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8c07a"/>
+      <stop offset="100%" stop-color="#a8802f"/>
+    </linearGradient>
+  </defs>
+
+  <!-- outer ring -->
+  <circle cx="200" cy="200" r="192" fill="url(#bg)" stroke="url(#gold)" stroke-width="3"/>
+  <circle cx="200" cy="200" r="178" fill="none" stroke="#e10600" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- checkered flag band at bottom -->
+  <g opacity="0.9">
+    <rect x="60" y="298" width="280" height="18" fill="#0a0a0c"/>
+    <g fill="#ececf0">
+      <rect x="60"  y="298" width="20" height="9"/>
+      <rect x="100" y="298" width="20" height="9"/>
+      <rect x="140" y="298" width="20" height="9"/>
+      <rect x="180" y="298" width="20" height="9"/>
+      <rect x="220" y="298" width="20" height="9"/>
+      <rect x="260" y="298" width="20" height="9"/>
+      <rect x="300" y="298" width="20" height="9"/>
+      <rect x="80"  y="307" width="20" height="9"/>
+      <rect x="120" y="307" width="20" height="9"/>
+      <rect x="160" y="307" width="20" height="9"/>
+      <rect x="200" y="307" width="20" height="9"/>
+      <rect x="240" y="307" width="20" height="9"/>
+      <rect x="280" y="307" width="20" height="9"/>
+      <rect x="320" y="307" width="20" height="9"/>
+    </g>
+  </g>
+
+  <!-- star top -->
+  <polygon points="200,60 207,82 230,82 211,96 218,118 200,104 182,118 189,96 170,82 193,82"
+           fill="url(#gold)"/>
+
+  <!-- big E -->
+  <g transform="translate(200 200)">
+    <text text-anchor="middle" dominant-baseline="central"
+          font-family="Impact, 'Arial Black', sans-serif"
+          font-size="180" font-weight="900"
+          fill="url(#red)" stroke="#0a0a0c" stroke-width="2">E</text>
+  </g>
+
+  <!-- ENZO text -->
+  <text x="200" y="255" text-anchor="middle"
+        font-family="Impact, 'Arial Black', sans-serif"
+        font-size="32" font-weight="900" fill="#ececf0" letter-spacing="4">ENZO</text>
+
+  <!-- experience text -->
+  <text x="200" y="280" text-anchor="middle"
+        font-family="-apple-system, Helvetica, Arial, sans-serif"
+        font-size="11" font-weight="700" fill="url(#gold)" letter-spacing="3">EXPERIENCE</text>
+
+  <!-- bottom tagline -->
+  <text x="200" y="348" text-anchor="middle"
+        font-family="-apple-system, Helvetica, Arial, sans-serif"
+        font-size="10" font-weight="700" fill="#8a8a96" letter-spacing="2.5">TRACK &amp; FRIENDS</text>
+</svg>

@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENZO EXPERIENCE — Project Manager</title>
+<style>
+  :root {
+    --bg: #0a0a0d;
+    --bg-2: #0f0f14;
+    --bg-3: #16161d;
+    --bg-4: #1d1d26;
+    --bg-hover: #232330;
+    --line: #25252f;
+    --line-2: #2e2e3a;
+    --text: #ececf0;
+    --muted: #8a8a96;
+    --muted-2: #5e5e6a;
+    --red: #D31224;
+    --red-soft: #EE2B3A;
+    --gold: #FDE015;
+    --green: #009246;
+    --blue: #3b82f6;
+    --orange: #f59e0b;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  button, input, select, textarea { font-family: inherit; }
+  input, select, textarea {
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--red); }
+  textarea { resize: vertical; min-height: 70px; line-height: 1.55; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #2a2a36; border-radius: 5px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a48; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 28px;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 800; font-size: 16px; letter-spacing: -0.3px;
+  }
+  .brand .logo {
+    height: 48px; width: auto; object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+  }
+  .brand .name { font-size: 18px; font-weight: 900; color: var(--gold); letter-spacing: -0.5px; }
+  .brand .name span { 
+    background: var(--red); color: white; 
+    padding: 2px 6px; border-radius: 4px;
+    display: inline-block; transform: translateY(-2px);
+    font-size: 16px; font-weight: 800;
+  }
+  .brand .sub {
+    font-size: 11px; color: var(--gold); font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1.5px; margin-top: 0px;
+    opacity: 0.9;
+  }
+  .topbar .spacer { flex: 1; }
+  .topbar .search {
+    width: 280px; padding: 8px 12px 8px 34px;
+    background: var(--bg-3) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a8a96' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='8'/><path d='m21 21-4.35-4.35'/></svg>") no-repeat 12px center;
+    border-radius: 8px;
+  }
+  .user-picker {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-3); padding: 6px 6px 6px 12px;
+    border-radius: 999px; border: 1px solid var(--line);
+  }
+  .user-picker .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .user-picker select {
+    background: none; border: none; padding: 4px 8px;
+    color: var(--text); font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+  .btn {
+    padding: 9px 16px; border: none; border-radius: 8px; cursor: pointer;
+    font-weight: 600; font-size: 13px; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary {
+    background: var(--red); color: white;
+    box-shadow: 0 4px 12px rgba(211,18,36,0.3);
+  }
+  .btn-primary:hover { background: var(--red-soft); transform: translateY(-1px); }
+  .btn-ghost {
+    background: var(--bg-3); color: var(--text); border: 1px solid var(--line);
+  }
+  .btn-ghost:hover { background: var(--bg-hover); border-color: var(--line-2); }
+  .btn-danger {
+    background: rgba(211,18,36,0.1); color: var(--red-soft);
+    border: 1px solid rgba(211,18,36,0.3);
+  }
+  .btn-danger:hover { background: rgba(211,18,36,0.2); }
+
+  /* ---------- TABS ---------- */
+  .tabs {
+    display: flex; gap: 4px; padding: 0 28px;
+    background: var(--bg-2); border-bottom: 1px solid var(--line);
+    position: sticky; top: 65px; z-index: 90;
+  }
+  .tabs button {
+    background: none; border: none; color: var(--muted);
+    padding: 14px 18px; cursor: pointer; font-weight: 600; font-size: 13px;
+    border-bottom: 2px solid transparent;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: color 0.15s;
+  }
+  .tabs button:hover { color: var(--text); }
+  .tabs button.active { color: var(--text); border-bottom-color: var(--red); }
+  .tabs button .pill {
+    background: var(--bg-3); padding: 1px 8px; border-radius: 999px;
+    font-size: 10px; color: var(--muted);
+  }
+  .tabs button.active .pill { background: var(--red); color: white; }
+
+  /* ---------- VIEWS ---------- */
+  main { padding: 28px; min-height: calc(100vh - 130px); }
+  .view { display: none; animation: fadeIn 0.2s; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- DASHBOARD ---------- */
+  .dash-hero {
+    background:
+      radial-gradient(ellipse at top right, rgba(211,18,36,0.15), transparent 60%),
+      radial-gradient(ellipse at bottom left, rgba(0,146,70,0.1), transparent 60%),
+      linear-gradient(135deg, #14141b 0%, #0f0f14 100%);
+    border: 1px solid var(--line);
+    border-radius: 16px; padding: 32px;
+    margin-bottom: 24px;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; gap: 32px;
+  }
+  .hero-logo-box { flex-shrink: 0; }
+  .hero-logo-box img { width: 180px; height: auto; filter: drop-shadow(0 12px 24px rgba(0,0,0,0.6)); }
+  .hero-content { flex: 1; }
+  .dash-hero h1 {
+    font-size: 40px; letter-spacing: -1.5px; font-weight: 900; line-height: 1.1; color: var(--gold);
+    margin-bottom: 4px;
+  }
+  .dash-hero h1 span { 
+    background: var(--red); color: white; padding: 2px 10px; border-radius: 6px; 
+    font-size: 34px; display: inline-block; transform: translateY(-4px); 
+  }
+  .hero-sub {
+    font-size: 16px; color: var(--gold); font-weight: 800; letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .dash-hero p { color: var(--muted); margin-top: 6px; max-width: 680px; font-size: 15px; }
+  .hero-date {
+    flex-shrink: 0; text-align: right;
+    padding-left: 24px; border-left: 1px solid var(--line);
+    margin-left: auto;
+  }
+  .hero-date .lbl {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--muted); font-weight: 700; margin-bottom: 6px;
+  }
+  .hero-date .day {
+    font-size: 72px; font-weight: 900; line-height: 0.9;
+    color: var(--text); letter-spacing: -3px;
+  }
+  .hero-date .month {
+    font-size: 22px; font-weight: 800; color: var(--red-soft);
+    text-transform: uppercase; letter-spacing: 3px; margin-top: 2px;
+  }
+  .hero-date .year {
+    font-size: 14px; color: var(--muted); font-weight: 600;
+    letter-spacing: 2px; margin-top: 4px;
+  }
+  .hero-date .tag {
+    display: inline-block; margin-top: 10px;
+    padding: 4px 12px; border-radius: 999px;
+    background: rgba(245,158,11,0.12); color: var(--orange);
+    border: 1px solid rgba(245,158,11,0.3);
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+  }
+  .dash-hero .badge {
+    display: inline-block; padding: 4px 12px;
+    background: rgba(211,18,36,0.12); color: var(--red-soft);
+    border: 1px solid rgba(211,18,36,0.3); border-radius: 999px;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; margin-bottom: 12px;
+  }
+
+  .metrics {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 1100px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px 20px;
+    position: relative; overflow: hidden;
+  }
+  .metric::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--accent, var(--muted));
+  }
+  .metric .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 600; }
+  .metric .num { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-top: 4px; }
+  .metric .sub { font-size: 11px; color: var(--muted-2); margin-top: 4px; }
+  .metric.total { --accent: var(--red); }
+  .metric.done { --accent: var(--green); }
+  .metric.doing { --accent: var(--orange); }
+  .metric.todo { --accent: var(--blue); }
+  .metric.late { --accent: var(--pink); }
+
+  .dash-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 1100px) { .dash-grid { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 14px; padding: 24px;
+  }
+  .panel h2 {
+    font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .panel h2::before {
+    content: ""; width: 3px; height: 14px; background: var(--red); border-radius: 2px;
+  }
+  .progress-row {
+    display: grid; grid-template-columns: 160px 1fr 50px;
+    align-items: center; gap: 14px;
+    padding: 8px 0;
+    font-size: 12.5px;
+  }
+  .progress-row .name { color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .progress-row .bar { height: 7px; background: var(--bg-3); border-radius: 4px; overflow: hidden; display: flex; }
+  .progress-row .bar > span { display: block; height: 100%; transition: width 0.5s; }
+  .b-done { background: var(--green); }
+  .b-doing { background: var(--orange); }
+  .b-todo { background: var(--blue); }
+  .b-backlog { background: #3a3a48; }
+  .progress-row .pct { font-size: 11px; color: var(--muted); text-align: right; }
+
+  .deadline-item, .activity-item {
+    padding: 14px 0; border-bottom: 1px solid var(--line);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .deadline-item:last-child, .activity-item:last-child { border-bottom: none; }
+  .deadline-item .date {
+    flex-shrink: 0; width: 50px; text-align: center;
+    background: var(--bg-3); border-radius: 8px; padding: 8px 0;
+  }
+  .deadline-item .date .day { font-size: 18px; font-weight: 800; color: var(--text); }
+  .deadline-item .date .month { font-size: 9px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; }
+  .deadline-item.late .date { background: rgba(236,72,153,0.15); border: 1px solid rgba(236,72,153,0.3); }
+  .deadline-item.late .date .day { color: var(--pink); }
+  .deadline-item.soon .date { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); }
+  .deadline-item.soon .date .day { color: var(--orange); }
+  .deadline-item .info { flex: 1; }
+  .deadline-item .info .ttl { font-weight: 600; font-size: 13px; cursor: pointer; }
+  .deadline-item .info .ttl:hover { color: var(--red-soft); }
+  .deadline-item .info .meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  .activity-item .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--red);
+    margin-top: 7px; flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(211,18,36,0.2);
+  }
+  .activity-item .who { font-weight: 600; color: var(--text); }
+  .activity-item .text { font-size: 12.5px; color: var(--muted); }
+  .activity-item .when { font-size: 10px; color: var(--muted-2); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .activity-item .text b { color: var(--text); }
+
+  .empty { color: var(--muted-2); font-size: 12px; padding: 20px 0; text-align: center; font-style: italic; }
+
+  /* ---------- KANBAN ---------- */
+  .kanban-toolbar {
+    display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-group {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 4px 4px 4px 14px;
+  }
+  .filter-group label { font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 1px; font-weight: 600; }
+  .filter-group select { background: none; border: none; padding: 8px 10px; cursor: pointer; }
+
+  .kanban-board {
+    display: grid; grid-template-columns: repeat(5, minmax(260px, 1fr));
+    gap: 14px;
+    overflow-x: auto;
+  }
+  @media (max-width: 1500px) { .kanban-board { grid-template-columns: repeat(5, 280px); } }
+
+  .kanban-col {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px;
+    display: flex; flex-direction: column;
+    min-height: 60vh;
+    transition: background 0.15s;
+  }
+  .kanban-col.drag-over {
+    background: var(--bg-3); border-color: var(--red);
+  }
+  .col-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 6px 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+  }
+  .col-header .title-wrap { display: flex; align-items: center; gap: 8px; }
+  .col-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .col-header .name { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: var(--text); }
+  .col-header .count { background: var(--bg-3); padding: 2px 9px; border-radius: 999px; font-size: 11px; color: var(--muted); font-weight: 600; }
+  .col[data-status="BACKLOG"] .dot { background: #5e5e6a; }
+  .col[data-status="A FAZER"] .dot { background: var(--blue); }
+  .col[data-status="EM ANDAMENTO"] .dot { background: var(--orange); }
+  .col[data-status="EM ANALISE"] .dot { background: var(--purple); }
+  .col[data-status="CONCLUIDO"] .dot { background: var(--green); }
+
+  .col-cards { flex: 1; display: flex; flex-direction: column; gap: 9px; }
+  .col-add {
+    margin-top: 10px; padding: 10px;
+    background: none; border: 1px dashed var(--line-2);
+    color: var(--muted); border-radius: 8px;
+    cursor: pointer; font-size: 12px; font-weight: 600;
+    transition: all 0.15s;
+  }
+  .col-add:hover { color: var(--text); border-color: var(--red); background: rgba(211,18,36,0.05); }
+
+  .card {
+    background: var(--bg-3); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 14px;
+    cursor: grab; transition: all 0.15s;
+    border-left: 3px solid var(--muted-2);
+    user-select: none;
+  }
+  .card:active { cursor: grabbing; }
+  .card:hover {
+    background: var(--bg-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+  .card.dragging { opacity: 0.4; }
+  .card[data-prio="alta"] { border-left-color: var(--red); }
+  .card[data-prio="normal"] { border-left-color: var(--blue); }
+  .card[data-prio="baixa"] { border-left-color: var(--muted-2); }
+  .card .top {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; margin-bottom: 8px;
+  }
+  .card .cat {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--gold); font-weight: 700;
+    background: rgba(253,224,21,0.1);
+    padding: 2px 7px; border-radius: 4px;
+    border: 1px solid rgba(253,224,21,0.2);
+  }
+  .card .id { font-size: 10px; color: var(--muted-2); font-weight: 600; }
+  .card .title { font-size: 13px; line-height: 1.4; color: var(--text); margin-bottom: 10px; }
+  .card .bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .card .resp {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--muted);
+  }
+  .card .avatar {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--red), #8b0400);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700;
+  }
+  .card .avatar.empty { background: var(--bg-4); color: var(--muted-2); }
+  .card .deadline {
+    font-size: 10px; padding: 2px 7px; border-radius: 4px;
+    background: var(--bg-4); color: var(--muted);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .card .deadline.late { background: rgba(236,72,153,0.15); color: var(--pink); border: 1px solid rgba(236,72,153,0.3); }
+  .card .deadline.soon { background: rgba(245,158,11,0.15); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+  .card .checklist-mini {
+    font-size: 10px; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+
+  /* ---------- LIST VIEW ---------- */
+  .list-table {
+    width: 100%; background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 12px; overflow: hidden; border-collapse: separate; border-spacing: 0;
+  }
+  .list-table th, .list-table td {
+    padding: 12px 16px; text-align: left; font-size: 13px;
+    border-bottom: 1px solid var(--line);
+  }
+  .list-table th {
+    background: var(--bg-3); color: var(--muted);
+    text-transform: uppercase; font-size: 10px; letter-spacing: 1.2px; font-weight: 700;
+    cursor: pointer;
+  }
+  .list-table th:hover { color: var(--text); }
+  .list-table tbody tr { transition: background 0.1s; cursor: pointer; }
+  .list-table tbody tr:hover { background: var(--bg-3); }
+  .list-table .status-pill {
+    display: inline-block; padding: 3px 10px; border-radius: 999px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .pill-BACKLOG { background: rgba(94,94,106,0.2); color: var(--muted); }
+  .pill-AFAZER { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill-EMANDAMENTO { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .pill-EMANALISE { background: rgba(168,85,247,0.15); color: var(--purple); }
+  .pill-CONCLUIDO { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill-alta { background: rgba(211,18,36,0.15); color: var(--red-soft); }
+  .pill-normal { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .pill-baixa { background: rgba(94,94,106,0.2); color: var(--muted); }
+
+  /* ---------- ACTIVITY VIEW ---------- */
+  .activity-feed { max-width: 900px; margin: 0 auto; }
+  .activity-day {
+    margin-bottom: 32px;
+  }
+  .activity-day .day-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); font-weight: 700; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .activity-day .day-label::after {
+    content: ""; flex: 1; height: 1px; background: var(--line);
+  }
+  .activity-card {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex; gap: 14px; align-items: flex-start;
+    transition: background 0.15s;
+  }
+  .activity-card:hover { background: var(--bg-3); }
+  .activity-card .ava {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--red), #8b0400);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .activity-card .body { flex: 1; }
+  .activity-card .body .who { font-weight: 700; color: var(--text); }
+  .activity-card .body .what { font-size: 13px; color: var(--muted); }
+  .activity-card .body .what b { color: var(--text); }
+  .activity-card .body .what .from-to {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--bg-3); padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; margin-left: 4px;
+  }
+  .activity-card .time { font-size: 11px; color: var(--muted-2); white-space: nowrap; }
+
+  /* ---------- PLAN VIEW ---------- */
+  #view-plan { max-width: 1100px; margin: 0 auto; }
+  .plan-hero {
+    position: relative;
+    background:
+      radial-gradient(ellipse at top right, rgba(211,18,36,0.18), transparent 65%),
+      radial-gradient(ellipse at bottom left, rgba(253,224,21,0.08), transparent 60%),
+      linear-gradient(135deg, #15151c 0%, #0d0d12 100%);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 44px 44px 38px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .plan-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 80px);
+    pointer-events: none;
+  }
+  .badge-plan {
+    display: inline-block; padding: 5px 14px;
+    background: rgba(211,18,36,0.12); color: var(--red-soft);
+    border: 1px solid rgba(211,18,36,0.35); border-radius: 999px;
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 18px;
+  }
+  .plan-title {
+    font-size: 56px; font-weight: 900; letter-spacing: -2px; line-height: 0.95;
+    margin-bottom: 14px;
+  }
+  .plan-title span { color: var(--red); }
+  .plan-tagline {
+    font-size: 17px; color: var(--muted); max-width: 700px;
+    line-height: 1.5; margin-bottom: 32px;
+  }
+  .plan-quickfacts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    position: relative;
+  }
+  @media (max-width: 800px) { .plan-quickfacts { grid-template-columns: repeat(2, 1fr); } }
+  .qf {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    backdrop-filter: blur(4px);
+  }
+  .qf-lbl {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted-2); font-weight: 700; margin-bottom: 6px;
+  }
+  .qf-val {
+    font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -0.4px;
+  }
+  .qf-sub {
+    font-size: 11px; color: var(--muted); margin-top: 2px;
+  }
+
+  .plan-section {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 14px; padding: 32px 36px; margin-bottom: 16px;
+  }
+  .plan-section.highlight {
+    background:
+      linear-gradient(135deg, rgba(211,18,36,0.05), transparent 60%),
+      var(--bg-2);
+    border-color: rgba(211,18,36,0.25);
+  }
+  .plan-section h2 {
+    font-size: 20px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 14px;
+    letter-spacing: -0.3px;
+  }
+  .plan-section h2::before {
+    content: ""; width: 4px; height: 22px; background: var(--red); border-radius: 2px;
+  }
+  .plan-section h3 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--gold); margin: 22px 0 10px; font-weight: 700;
+  }
+  .plan-section p, .plan-section li {
+    color: #c8c8d0; font-size: 14px; margin-bottom: 6px; line-height: 1.6;
+  }
+  .plan-section .lead {
+    font-size: 15px; color: #d8d8e0; line-height: 1.65;
+  }
+  .plan-section .callout {
+    background: rgba(253,224,21,0.08);
+    border-left: 3px solid var(--gold);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    color: var(--gold);
+    font-size: 14px;
+    margin: 12px 0 4px;
+  }
+  .plan-section .callout b { color: #ffd589; }
+  .plan-section ul { padding-left: 20px; margin-bottom: 4px; }
+  .plan-section ul li::marker { color: var(--muted-2); }
+  .plan-section strong, .plan-section b { color: var(--text); }
+  .plan-section table {
+    width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px;
+    background: var(--bg-3); border-radius: 8px; overflow: hidden;
+  }
+  .plan-section th, .plan-section td {
+    padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line);
+  }
+  .plan-section th {
+    background: rgba(255,255,255,0.03); color: var(--muted);
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700;
+  }
+  .plan-section td { color: #c8c8d0; }
+  .plan-section tbody tr:last-child td { border-bottom: none; }
+  .plan-section tbody tr:hover { background: rgba(255,255,255,0.015); }
+
+  .tag-todo {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    background: rgba(245,158,11,0.12); color: var(--orange);
+    border: 1px solid rgba(245,158,11,0.3);
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+    margin-top: 8px;
+  }
+  @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+
+  .pillar-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px; margin-top: 10px;
+  }
+  .pillar {
+    background: rgba(211,18,36,0.05);
+    border: 1px solid rgba(211,18,36,0.2);
+    border-radius: 10px;
+    padding: 16px;
+    transition: all 0.2s;
+  }
+  .pillar:hover {
+    border-color: rgba(211,18,36,0.4);
+    transform: translateY(-2px);
+  }
+  .pillar b {
+    color: var(--red-soft); display: block;
+    margin-bottom: 5px; font-size: 13px; font-weight: 700;
+  }
+  .pillar span { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* ---------- MODAL ---------- */
+  .modal-bg {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    align-items: flex-start; justify-content: center;
+    padding: 60px 20px;
+    overflow-y: auto;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 16px; width: 100%; max-width: 720px;
+    box-shadow: var(--shadow);
+    animation: modalIn 0.2s;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1); } }
+  .modal-head {
+    padding: 22px 26px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .modal-head .breadcrumb { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .modal-head input.title-edit {
+    width: 100%; background: none; border: none; padding: 4px 0;
+    font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.4px;
+  }
+  .modal-head input.title-edit:focus { outline: none; }
+  .modal-body { padding: 22px 26px; max-height: 65vh; overflow-y: auto; }
+  .modal-foot {
+    padding: 16px 26px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; gap: 10px;
+  }
+
+  .modal-status-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px;
+  }
+  .status-pill-btn {
+    padding: 7px 14px; border-radius: 999px; cursor: pointer;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    border: 1px solid var(--line); background: var(--bg-3); color: var(--muted);
+    transition: all 0.15s;
+  }
+  .status-pill-btn:hover { color: var(--text); }
+  .status-pill-btn.active[data-status="BACKLOG"] { background: rgba(94,94,106,0.25); color: var(--text); border-color: var(--muted-2); }
+  .status-pill-btn.active[data-status="A FAZER"] { background: rgba(59,130,246,0.2); color: var(--blue); border-color: var(--blue); }
+  .status-pill-btn.active[data-status="EM ANDAMENTO"] { background: rgba(245,158,11,0.2); color: var(--orange); border-color: var(--orange); }
+  .status-pill-btn.active[data-status="EM ANALISE"] { background: rgba(168,85,247,0.2); color: var(--purple); border-color: var(--purple); }
+  .status-pill-btn.active[data-status="CONCLUIDO"] { background: rgba(34,197,94,0.2); color: var(--green); border-color: var(--green); }
+
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 600; }
+  .field input, .field select, .field textarea { width: 100%; }
+
+  .checklist-section { margin-bottom: 18px; }
+  .checklist-section h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 600; margin-bottom: 10px; }
+  .checklist-progress { height: 4px; background: var(--bg-3); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
+  .checklist-progress > span { display: block; height: 100%; background: var(--green); transition: width 0.3s; }
+  .checklist-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .checklist-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+  .checklist-item input[type="text"] { flex: 1; background: none; border: none; padding: 4px 0; font-size: 13px; }
+  .checklist-item input[type="text"]:focus { outline: none; border-bottom: 1px solid var(--line); }
+  .checklist-item .del { background: none; border: none; color: var(--muted-2); cursor: pointer; font-size: 16px; }
+  .checklist-item .del:hover { color: var(--pink); }
+  .checklist-item.done input[type="text"] { color: var(--muted-2); text-decoration: line-through; }
+  .checklist-add {
+    background: none; border: 1px dashed var(--line-2); color: var(--muted);
+    padding: 8px; border-radius: 8px; cursor: pointer; font-size: 12px;
+    width: 100%; margin-top: 6px;
+  }
+  .checklist-add:hover { color: var(--text); border-color: var(--red); }
+
+  .history-section { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .history-section h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 600; margin-bottom: 12px; }
+  .history-item {
+    display: flex; gap: 12px; padding: 10px 0;
+    font-size: 12px; color: var(--muted);
+    border-bottom: 1px solid var(--line);
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .h-when { font-size: 10px; color: var(--muted-2); white-space: nowrap; min-width: 90px; }
+  .history-item .h-text b { color: var(--text); }
+  .history-item .h-text .ft { background: var(--bg-3); padding: 1px 6px; border-radius: 3px; font-size: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="brand">
+    <img src="data/logo_enzo_track.png" class="logo" alt="ENZO Tracker" />
+    <div>
+      <div class="name">ENZO <span>EXPERIENCE</span></div>
+      <div class="sub">= TRACK &amp; FRIENDS =</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <input type="text" id="search" class="search" placeholder="Buscar tarefa, categoria, responsável...">
+  <div class="user-picker">
+    <span class="label">Você é:</span>
+    <select id="user-select"></select>
+  </div>
+  <button class="btn btn-primary" id="new-task-btn">+ Nova tarefa</button>
+</div>
+
+<!-- ============ TABS ============ -->
+<div class="tabs">
+  <button data-view="dashboard" class="active">Dashboard</button>
+  <button data-view="kanban">Kanban</button>
+  <button data-view="list">Lista</button>
+  <button data-view="activity">Atividade</button>
+  <button data-view="plan">Planejamento</button>
+</div>
+
+<main>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="view active" id="view-dashboard">
+    <div class="dash-hero">
+      <div class="hero-logo-box">
+        <img src="data/logo_enzo_track.png" alt="Logo Enzo Experience" />
+      </div>
+      <div class="hero-content">
+        <span class="badge">★ Premium Track Day Experience</span>
+        <h1>ENZO <span>EXPERIENCE</span></h1>
+        <div class="hero-sub">= TRACK &amp; FRIENDS =</div>
+        <p>Painel de controle do evento — acompanhe em tempo real o que foi feito, o que está em andamento e o que ainda precisa ser definido. Sebring International Raceway, Flórida.</p>
+      </div>
+      <div class="hero-date">
+        <div class="lbl">Data do Evento</div>
+        <div class="day">13</div>
+        <div class="month">Junho</div>
+        <div class="year">2026</div>
+        <div class="tag">A definir</div>
+      </div>
+    </div>
+
+    <div class="metrics" id="metrics"></div>
+
+    <div class="dash-grid">
+      <div class="panel">
+        <h2>Progresso por Área</h2>
+        <div id="progress-list"></div>
+      </div>
+      <div class="panel">
+        <h2>Próximos Prazos</h2>
+        <div id="deadline-list"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Atividade Recente</h2>
+      <div id="recent-activity"></div>
+    </div>
+  </section>
+
+  <!-- ============ KANBAN ============ -->
+  <section class="view" id="view-kanban">
+    <div class="kanban-toolbar">
+      <div class="filter-group">
+        <label>Área</label>
+        <select id="filter-cat"><option value="">Todas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Responsável</label>
+        <select id="filter-resp"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Prioridade</label>
+        <select id="filter-prio">
+          <option value="">Todas</option>
+          <option value="alta">Alta</option>
+          <option value="normal">Normal</option>
+          <option value="baixa">Baixa</option>
+        </select>
+      </div>
+    </div>
+    <div class="kanban-board" id="kanban-board"></div>
+  </section>
+
+  <!-- ============ LIST ============ -->
+  <section class="view" id="view-list">
+    <table class="list-table">
+      <thead>
+        <tr>
+          <th data-sort="id">ID</th>
+          <th data-sort="title">Tarefa</th>
+          <th data-sort="category">Área</th>
+          <th data-sort="status">Status</th>
+          <th data-sort="responsible">Responsável</th>
+          <th data-sort="priority">Prio</th>
+          <th data-sort="deadline">Prazo</th>
+          <th data-sort="updated_at">Atualizado</th>
+        </tr>
+      </thead>
+      <tbody id="list-body"></tbody>
+    </table>
+  </section>
+
+  <!-- ============ ACTIVITY ============ -->
+  <section class="view" id="view-activity">
+    <div class="activity-feed" id="activity-feed"></div>
+  </section>
+
+  <!-- ============ PLAN ============ -->
+  <section class="view" id="view-plan">
+
+    <!-- HERO RESUMO -->
+    <div class="plan-hero">
+      <span class="badge-plan">Documento de Planejamento</span>
+      <h1 class="plan-title">ENZO <span>EXPERIENCE</span></h1>
+      <p class="plan-tagline">Track &amp; Friends — Um dia. Um autódromo lendário. Uma experiência feita para quem entende de carros e valoriza cada detalhe.</p>
+
+      <div class="plan-quickfacts">
+        <div class="qf"><div class="qf-lbl">Local</div><div class="qf-val">Sebring Int'l Raceway</div><div class="qf-sub">Flórida, EUA</div></div>
+        <div class="qf"><div class="qf-lbl">Formato</div><div class="qf-val">1 dia premium</div><div class="qf-sub">07:00 às 18:00</div></div>
+        <div class="qf"><div class="qf-lbl">Capacidade</div><div class="qf-val">~30 carros</div><div class="qf-sub">vagas limitadas</div></div>
+        <div class="qf"><div class="qf-lbl">Público</div><div class="qf-val">~60-80 pessoas</div><div class="qf-sub">pilotos + acompanhantes</div></div>
+        <div class="qf"><div class="qf-lbl">Organização</div><div class="qf-val">Lucas</div><div class="qf-sub">oficina especializada</div></div>
+        <div class="qf"><div class="qf-lbl">Status</div><div class="qf-val">Em planejamento</div><div class="qf-sub">próximo: visita técnica</div></div>
+      </div>
+    </div>
+
+    <!-- RESUMO EXECUTIVO -->
+    <div class="plan-section highlight">
+      <h2>Resumo Executivo</h2>
+      <p class="lead">A <b>ENZO EXPERIENCE — Track &amp; Friends</b> é um evento automotivo privado e exclusivo onde proprietários de carros de alta performance desfrutam de um dia completo em pista, em ambiente controlado, com acompanhamento de pilotos profissionais. Mais do que um track day comum, é uma experiência premium para toda a família — pilotos na pista, acompanhantes em lounge confortável, gastronomia de alto padrão e memórias registradas profissionalmente.</p>
+
+      <div class="pillar-grid" style="margin-top:18px;">
+        <div class="pillar"><b>Exclusividade Absoluta</b><span>Evento fechado, vagas limitadas, curadoria rigorosa de participantes</span></div>
+        <div class="pillar"><b>Performance com Segurança</b><span>Pista profissional com instrutores qualificados e ambiente controlado</span></div>
+        <div class="pillar"><b>Experiência para Todos</b><span>Pilotos + acompanhantes — família curte o dia todo</span></div>
+        <div class="pillar"><b>Qualidade &gt; Quantidade</b><span>Cada detalhe pensado para o mais alto padrão</span></div>
+      </div>
+    </div>
+
+    <!-- 1. LOCAL -->
+    <div class="plan-section">
+      <h2>1. Local — Sebring International Raceway</h2>
+      <p>Um dos autódromos mais icônicos e tecnicamente desafiadores dos Estados Unidos. Referência internacional em provas de endurance há mais de 70 anos, Sebring combina <b>curvas técnicas exigentes</b> com <b>longos trechos retos</b> — ideal para explorar o potencial real dos carros e evoluir na pilotagem.</p>
+
+      <h3>Por que Sebring</h3>
+      <ul>
+        <li>Pista lendária — sede das 12 Horas de Sebring desde 1952</li>
+        <li>Layout técnico que premia a precisão, não só a velocidade bruta</li>
+        <li>Infraestrutura completa: boxes, áreas cobertas, paddock</li>
+        <li>Localização privilegiada na Flórida — clima favorável o ano todo</li>
+        <li>Reconhecimento internacional adiciona valor à experiência</li>
+      </ul>
+
+      <h3>Pendências da visita técnica</h3>
+      <ul>
+        <li>Agendar visita técnica ao local (Thiago + equipe)</li>
+        <li>Verificar infraestrutura disponível — boxes, lounge, áreas cobertas</li>
+        <li>Confirmar safety incluso: ambulância, paramédicos, bombeiros, marshalls</li>
+        <li>Avaliar viabilidade de área VIP com vista para a pista</li>
+        <li>Verificar regras e requisitos da pista para eventos privados</li>
+        <li>Levantar custo de aluguel da pista por 1 dia</li>
+        <li>Verificar infraestrutura de abastecimento no local</li>
+      </ul>
+    </div>
+
+    <!-- 2. PUBLICO-ALVO -->
+    <div class="plan-section">
+      <h2>2. Público-Alvo</h2>
+
+      <div class="two-col">
+        <div>
+          <h3>Pilotos (participantes) — ~30 vagas</h3>
+          <ul>
+            <li>Proprietários de carros exclusivos / alta performance</li>
+            <li>Entusiastas e pilotos amadores que querem evoluir na pilotagem</li>
+            <li>Alto poder aquisitivo, paixão por carros, valorizam exclusividade</li>
+            <li>Perfil que valoriza qualidade, segurança e experiência completa</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Acompanhantes</h3>
+          <ul>
+            <li>Família — esposa, filhos</li>
+            <li>Amigos próximos do piloto</li>
+            <li>Querem curtir o dia no ambiente sem necessariamente pilotar</li>
+            <li>Ingresso avulso (separado do ingresso do piloto)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Divisão de grupos sugerida</h3>
+      <ul>
+        <li><b>Grupo A</b> — Iniciantes (primeira vez em pista ou pouca experiência)</li>
+        <li><b>Grupo B</b> — Intermediários (alguma experiência em track day)</li>
+        <li><b>Grupo C</b> — Avançados (pilotos com boa experiência)</li>
+      </ul>
+      <p style="font-size:12px;color:var(--muted);font-style:italic;">Auto-declaração na inscrição + validação pela equipe.</p>
+    </div>
+
+    <!-- 3. INSTRUTORES -->
+    <div class="plan-section">
+      <h2>3. Instrutores Profissionais</h2>
+      <p>Pilotos profissionais — amigos e contatos do Thiago. Altamente qualificados em técnicas avançadas de pilotagem: trajetória ideal, pontos de frenagem, controle de aceleração e gestão de tração.</p>
+
+      <h3>Formato de instrução</h3>
+      <ul>
+        <li><b>Acompanhamento individualizado</b> ou em pequenos grupos — ideal: 1 instrutor para cada 4-5 carros (~6-8 instrutores no total)</li>
+        <li><b>Lead &amp; Follow</b> — instrutor na frente mostrando a linha ideal (ótimo para iniciantes)</li>
+        <li><b>Hot Lap</b> — instrutor dirige o carro do participante mostrando o limite do veículo</li>
+        <li><b>Análise pós-sessão</b> — feedback direto e personalizado do instrutor ao piloto</li>
+      </ul>
+
+      <h3>Definições pendentes</h3>
+      <ul>
+        <li>Confirmar lista de instrutores disponíveis</li>
+        <li>Definir quantidade necessária (mínimo 6 para 30 carros)</li>
+        <li>Alinhar caché / condições com cada instrutor</li>
+        <li>Definir se instrutores terão carro próprio ou usam o do participante no Lead &amp; Follow</li>
+      </ul>
+    </div>
+
+    <!-- 4. PROGRAMACAO -->
+    <div class="plan-section">
+      <h2>4. Programação do Dia</h2>
+      <table>
+        <thead><tr><th>Horário</th><th>Atividade</th><th>Detalhes</th></tr></thead>
+        <tbody>
+          <tr><td>07:00</td><td>Abertura dos portões / Check-in</td><td>Credenciamento, entrega de kits, pulseiras</td></tr>
+          <tr><td>07:30</td><td>Café da manhã premium</td><td>Buffet completo</td></tr>
+          <tr><td>07:30</td><td>Exposição dos carros</td><td>"Car Show" — fotos, socialização</td></tr>
+          <tr><td>08:00</td><td>Inspeção técnica dos veículos</td><td>Verificação rápida pela equipe mecânica Enzo</td></tr>
+          <tr><td>08:30</td><td>Briefing de segurança</td><td>Regras da pista, bandeiras, procedimentos</td></tr>
+          <tr><td>08:45</td><td>Apresentação dos instrutores</td><td>Cada piloto conhece seu instrutor</td></tr>
+          <tr><td>09:00</td><td>Sessão 1 — Pista (Grupo A)</td><td>Simuladores e lounge abertos para os demais</td></tr>
+          <tr><td>09:25</td><td>Sessão 1 — Pista (Grupo B)</td><td></td></tr>
+          <tr><td>09:50</td><td>Sessão 1 — Pista (Grupo C)</td><td></td></tr>
+          <tr><td>10:15</td><td>Intervalo + hidratação</td><td>Análise de telemetria / feedback dos instrutores</td></tr>
+          <tr><td>10:45</td><td>Sessão 2 — Pista (rodízio)</td><td></td></tr>
+          <tr><td>12:00</td><td>Almoço Premium</td><td>Buffet + churrasco especial + carnes nobres</td></tr>
+          <tr><td>13:30</td><td>Sessão 3 — Pista + Hot Laps</td><td>Instrutores fazem hot laps nos carros</td></tr>
+          <tr><td>15:00</td><td>Sessão 4 — Ride-Along Família</td><td>Voltas de carona para acompanhantes (com instrutor)</td></tr>
+          <tr><td>15:30</td><td>Sessão 5 — Pista livre</td><td>Últimas sessões do dia</td></tr>
+          <tr><td>16:30</td><td>"Last Lap" cerimonial</td><td>Última volta especial</td></tr>
+          <tr><td>17:00</td><td>Encerramento</td><td>Entrega de certificados, fotos em grupo, happy hour</td></tr>
+          <tr><td>18:00</td><td>Fim do evento</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 5. SERVICOS -->
+    <div class="plan-section">
+      <h2>5. Serviços do Evento</h2>
+
+      <h3>5.1 — Preparação Pré-Pista (Enzo)</h3>
+      <p>Oferecido pela equipe mecânica da Enzo antes do evento:</p>
+      <ul>
+        <li>Troca/verificação de óleos específicos para uso em pista</li>
+        <li>Calibragem de pneus para uso em circuito</li>
+        <li>Inspeção geral — freios, fluidos, suspensão</li>
+        <li>Check-up completo para garantir que o carro está pronto</li>
+      </ul>
+
+      <h3>5.2 — Serviço Pós-Pista (Enzo)</h3>
+      <p>Após o evento, restauração do veículo:</p>
+      <ul>
+        <li>Troca de óleos de volta para especificação de rua</li>
+        <li>Recalibragem de pneus para uso urbano</li>
+        <li>Verificação pós-pista (desgaste de pastilhas, fluidos)</li>
+        <li>Lavagem / detailing do veículo</li>
+      </ul>
+
+      <h3>5.3 — Mecânica no Evento</h3>
+      <ul>
+        <li>Box de serviços ENZO no local</li>
+        <li>Equipe de mecânicos à disposição durante todo o dia</li>
+        <li>Reparos rápidos e ajustes necessários</li>
+        <li>Monitoramento de temperatura dos freios e pneus</li>
+      </ul>
+
+      <h3>5.4 — Outros serviços (a negociar com parceiros)</h3>
+      <ul>
+        <li><b>Abastecimento</b> no local durante o evento</li>
+        <li><b>Venda de pneus</b> para uso em pista (Pirelli, Michelin)</li>
+        <li><b>Transporte em plataforma</b> — ida e volta até Sebring</li>
+        <li><b>Locação de veículos</b> para participantes que não levaram carro próprio</li>
+        <li><b>Special Shuttle</b> — transporte para participantes</li>
+        <li><b>Massagistas</b> — relaxamento pós-sessão para os pilotos</li>
+      </ul>
+    </div>
+
+    <!-- 6. ACOMPANHANTES -->
+    <div class="plan-section">
+      <h2>6. Experiência para Acompanhantes</h2>
+      <p class="callout">Diferencial crítico do evento. <b>Se a família se diverte, o piloto volta.</b></p>
+
+      <h3>Lounge para família e amigos</h3>
+      <ul>
+        <li>Espaço confortável com sofás, mesas, sombra</li>
+        <li>Telão / TV com transmissão das câmeras da pista</li>
+        <li>Ar condicionado (verificar na visita técnica)</li>
+        <li>Vista para a pista (a verificar conforme infraestrutura local)</li>
+      </ul>
+
+      <h3>Kids Zone</h3>
+      <ul>
+        <li>Simuladores de corrida (gaming / racing rigs)</li>
+        <li>Mini kart elétrico em circuito demarcado (se houver espaço)</li>
+        <li>Atividades temáticas — pintura de capacetes, desenho de carros</li>
+        <li>Monitores / recreadores para crianças</li>
+      </ul>
+
+      <h3>Ride-Along para Família</h3>
+      <p>Voltas de carona no carro com instrutor profissional. Experiência inesquecível e segura — horário dedicado na programação (sessão 4, 15h).</p>
+
+      <h3>Gastronomia ao longo do dia</h3>
+      <ul>
+        <li><b>Café da manhã</b> — buffet premium (07:30)</li>
+        <li><b>Estações ao longo do dia</b> — frutas, snacks, água, isotônicos, café</li>
+        <li><b>Almoço</b> — buffet + churrasco com carnes especiais (12:00)</li>
+        <li><b>Happy hour</b> — drinks no encerramento (17:00)</li>
+        <li>Opções especiais para crianças</li>
+      </ul>
+
+      <h3>Entretenimento</h3>
+      <ul>
+        <li>DJ / música ambiente ao longo do dia</li>
+        <li>Fotógrafo e videomaker profissional registrando tudo</li>
+      </ul>
+    </div>
+
+    <!-- 7. CONTEUDO -->
+    <div class="plan-section">
+      <h2>7. Conteúdo &amp; Memória do Evento</h2>
+
+      <h3>Durante o evento</h3>
+      <ul>
+        <li><b>Fotógrafo profissional</b> — cobertura de cada carro e cada família</li>
+        <li><b>Videomaker</b> — captação cinematográfica (drone, câmeras na pista, bastidores)</li>
+        <li><b>Telemetria / onboard</b> — câmera a bordo para cada piloto rever suas voltas</li>
+      </ul>
+
+      <h3>Pós-evento (entregáveis)</h3>
+      <ul>
+        <li><b>Aftermovie</b> — vídeo profissional editado (para redes e para cada participante)</li>
+        <li><b>Galeria de fotos</b> — álbum digital individual</li>
+        <li><b>Mini-filme personalizado</b> — edição curta com os melhores momentos de cada piloto</li>
+        <li><b>Certificado de participação</b> — personalizado com nome e dados do evento</li>
+      </ul>
+
+      <h3>Kit do participante (entregue no check-in)</h3>
+      <ul>
+        <li>Camiseta exclusiva do evento</li>
+        <li>Pulseira de identificação</li>
+        <li>Revista / booklet do evento</li>
+        <li>Brinde surpresa (miniatura, chaveiro, boné...)</li>
+      </ul>
+    </div>
+
+    <!-- 8. SEGURANCA -->
+    <div class="plan-section">
+      <h2>8. Segurança</h2>
+
+      <h3>Obrigatório no dia</h3>
+      <ul>
+        <li>Ambulância + paramédicos no local</li>
+        <li>Bombeiro / carro de resgate posicionado</li>
+        <li>Marshalls nos pontos da pista</li>
+        <li>Briefing de segurança obrigatório para todos os pilotos</li>
+        <li>Briefing de bandeiras (verde, amarela, vermelha, preta...)</li>
+      </ul>
+
+      <h3>Equipamentos dos pilotos (a definir)</h3>
+      <ul>
+        <li>Capacete obrigatório — emprestado ou próprio?</li>
+        <li>Macacão exigido ou apenas calçado fechado + roupa adequada?</li>
+        <li>HANS device obrigatório para carros com cinto de competição?</li>
+        <li>Luvas obrigatórias ou recomendadas?</li>
+      </ul>
+
+      <h3>Inspeção técnica + Seguro</h3>
+      <ul>
+        <li>Inspeção mecânica de cada veículo no dia (pela equipe Enzo)</li>
+        <li>Check-list: freios, fluidos, cintos, extintores, pneus, capacetes</li>
+        <li>Veículos reprovados não entram em pista até corrigir</li>
+        <li>Verificar exigências de seguro do Sebring</li>
+        <li>Avaliar contratação de seguro do evento (responsabilidade civil)</li>
+      </ul>
+    </div>
+
+    <!-- 9. RECEITA -->
+    <div class="plan-section">
+      <h2>9. Modelo de Receita</h2>
+
+      <h3>Fontes de receita</h3>
+      <table>
+        <thead><tr><th>Item</th><th>Descrição</th><th>Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Track Pass</td><td>Acesso à pista + café/almoço + piloto + 1 acompanhante</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>VIP Pass</td><td>Track Pass + hot lap + telemetria + vídeo editado</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>Ingresso Extra</td><td>Convidado adicional (café/almoço + lounge)</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>Cota Patrocínio</td><td>Marcas / parceiros alinhados ao perfil do evento</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>Serviços Mecânicos</td><td>Pré, pós e reparos no dia (cobrados à parte)</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>Transfer Veículos</td><td>Plataforma ida/volta</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>Locação de Veículos</td><td>Para quem não leva carro próprio</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>Abastecimento</td><td>Combustível durante o evento</td><td><span class="tag-todo">a definir</span></td></tr>
+          <tr><td>Venda de Pneus</td><td>Pneus de pista no local</td><td><span class="tag-todo">a definir</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Custos principais a levantar</h3>
+      <ul>
+        <li>Aluguel da pista (Sebring, 1 dia, evento privado)</li>
+        <li>Safety — ambulância, bombeiros, marshalls (se não incluso no aluguel)</li>
+        <li>Caché dos instrutores</li>
+        <li>Catering (café + almoço + estações + happy hour para ~60-80 pessoas)</li>
+        <li>Equipamentos de apoio (tendas, mobiliário, telões, geradores)</li>
+        <li>Simuladores (aluguel)</li>
+        <li>Fotografia + vídeo (equipe + drone + edição)</li>
+        <li>Kits dos participantes (camisetas, brindes, impressos)</li>
+        <li>DJ / sonorização</li>
+        <li>Kids Zone (recreação, mini karts, materiais)</li>
+        <li>Seguro do evento</li>
+        <li>Marketing e divulgação</li>
+        <li>Logística (equipe Enzo, viagem, hospedagem)</li>
+      </ul>
+    </div>
+
+    <!-- 10. PATROCINIOS -->
+    <div class="plan-section">
+      <h2>10. Patrocínios e Parcerias</h2>
+      <p>Marcas e produtos/serviços que conectam com o público premium e automobilístico:</p>
+
+      <div class="pillar-grid">
+        <div class="pillar"><b>Pneus</b><span>Pirelli, Michelin</span></div>
+        <div class="pillar"><b>Combustível</b><span>Shell, Sunoco, VP Racing</span></div>
+        <div class="pillar"><b>Óleos</b><span>Motul, Liqui Moly, Mobil 1</span></div>
+        <div class="pillar"><b>Relógios</b><span>TAG Heuer, Rolex, Hublot</span></div>
+        <div class="pillar"><b>Seguradoras</b><span>Especializadas em veículos de luxo</span></div>
+        <div class="pillar"><b>Bebidas Premium</b><span>Água, isotônicos, whisky, champagne</span></div>
+        <div class="pillar"><b>Lifestyle</b><span>Moda, acessórios, aviação executiva</span></div>
+      </div>
+
+      <h3>Formatos de cota</h3>
+      <ul>
+        <li>Definir níveis de patrocínio (Platina, Ouro, Prata)</li>
+        <li>Definir contrapartidas — logo, banner, menções, espaço exclusivo</li>
+        <li>Montar media kit / proposta comercial para patrocinadores</li>
+      </ul>
+    </div>
+
+    <!-- 11. COMUNICACAO -->
+    <div class="plan-section">
+      <h2>11. Comunicação e Vendas</h2>
+
+      <h3>Estratégia de divulgação</h3>
+      <ul>
+        <li>Evento fechado / exclusivo — divulgação direcionada, não massiva</li>
+        <li>Convites diretos via rede de contatos do Thiago e da Enzo</li>
+        <li>Redes sociais da Enzo (Instagram, YouTube) — conteúdo aspiracional</li>
+        <li>Grupos e comunidades de carros exclusivos</li>
+      </ul>
+
+      <h3>Inscrição</h3>
+      <ul>
+        <li>Definir plataforma de inscrição (site próprio, formulário, WhatsApp)</li>
+        <li>Definir processo de curadoria / aprovação de participantes</li>
+        <li>Definir política de cancelamento e reembolso</li>
+        <li>Definir formas de pagamento</li>
+      </ul>
+    </div>
+
+    <!-- 12. POS-EVENTO -->
+    <div class="plan-section">
+      <h2>12. Pós-Evento</h2>
+      <ul>
+        <li>Envio do material de foto e vídeo para participantes</li>
+        <li>Aftermovie publicado nas redes (~1 semana depois)</li>
+        <li>Pesquisa de satisfação — feedback para próxima edição</li>
+        <li>Grupo exclusivo de participantes (WhatsApp / Telegram) para manter networking</li>
+        <li>Planejamento da próxima edição com base nos aprendizados</li>
+      </ul>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <div class="breadcrumb" id="m-breadcrumb">—</div>
+      <input type="text" class="title-edit" id="m-title" placeholder="Título da tarefa">
+    </div>
+    <div class="modal-body">
+      <div class="modal-status-row" id="m-status-row"></div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label>Área / Categoria</label>
+          <select id="m-category"></select>
+        </div>
+        <div class="field">
+          <label>Responsável</label>
+          <select id="m-responsible"></select>
+        </div>
+        <div class="field">
+          <label>Prazo</label>
+          <input type="date" id="m-deadline">
+        </div>
+        <div class="field">
+          <label>Prioridade</label>
+          <select id="m-priority">
+            <option value="alta">Alta</option>
+            <option value="normal">Normal</option>
+            <option value="baixa">Baixa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom: 18px;">
+        <label>Descrição / Definições</label>
+        <textarea id="m-description" placeholder="Detalhes, definições, decisões tomadas..."></textarea>
+      </div>
+
+      <div class="field" style="margin-bottom: 18px;">
+        <label>Notas rápidas</label>
+        <input type="text" id="m-notes" placeholder="Observação curta">
+      </div>
+
+      <div class="checklist-section">
+        <h3>Checklist <span id="m-checklist-count" style="color:var(--muted-2);"></span></h3>
+        <div class="checklist-progress"><span id="m-checklist-bar" style="width:0%"></span></div>
+        <div id="m-checklist"></div>
+        <button class="checklist-add" id="m-checklist-add">+ Adicionar item</button>
+      </div>
+
+      <div class="history-section">
+        <h3>Histórico</h3>
+        <div id="m-history"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" id="m-delete">Excluir tarefa</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-ghost" id="m-cancel">Cancelar</button>
+        <button class="btn btn-primary" id="m-save">Salvar alterações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================================
+// STATE
+// =============================================================
+const STATUSES = ["BACKLOG", "A FAZER", "EM ANDAMENTO", "EM ANALISE", "CONCLUIDO"];
+const STATUS_LABEL = {
+  "BACKLOG": "Backlog",
+  "A FAZER": "A Fazer",
+  "EM ANDAMENTO": "Em Andamento",
+  "EM ANALISE": "Em Análise",
+  "CONCLUIDO": "Concluído",
+};
+
+let state = {
+  tasks: [],
+  users: [],
+  categories: [],
+  filter: { cat: "", resp: "", prio: "", search: "" },
+  currentUser: localStorage.getItem("ee_user") || "Thiago",
+  editing: null,
+  isNew: false,
+};
+
+// =============================================================
+// SUPABASE API
+// =============================================================
+const SUPABASE_URL = "https://mpoxvpyahskcwrzctyqw.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1wb3h2cHlhaHNrY3dyemN0eXF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTYzMzgsImV4cCI6MjA5MTMzMjMzOH0.Rg_L67VT8d1m2_EGHKBKHxP4dipPpICP3ekbV5Ru3p4";
+
+async function sb(method, path, body, extraPrefer) {
+  const prefer = ["return=representation"];
+  if (extraPrefer) prefer.push(extraPrefer);
+  const r = await fetch(`${SUPABASE_URL}/rest/v1${path}`, {
+    method,
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": prefer.join(","),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!r.ok) {
+    const err = await r.text();
+    console.error("Supabase error:", r.status, err);
+    throw new Error(`Supabase ${r.status}: ${err}`);
+  }
+  const text = await r.text();
+  return text ? JSON.parse(text) : null;
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+async function apiGetData() {
+  const [tasks, config] = await Promise.all([
+    sb("GET", "/tasks?select=*&order=id.asc"),
+    sb("GET", "/config?select=*"),
+  ]);
+  const cfgMap = {};
+  (config || []).forEach(c => { cfgMap[c.key] = c.value; });
+  const users = cfgMap.users || ["Lucas", "Thiago", "Lucas + Thiago", "Todos"];
+  const categories = cfgMap.categories || [...new Set(tasks.map(t => t.category))].sort();
+  return { tasks: tasks || [], users, categories };
+}
+
+async function apiUpdateTask(id, patch) {
+  // compute history entries for changed fields
+  const existing = state.tasks.find(t => t.id === id);
+  if (!existing) return null;
+  const user = state.currentUser || "Sistema";
+  const now = nowIso();
+  const historyAdds = [];
+  const update = {};
+  for (const [k, v] of Object.entries(patch)) {
+    if (k.startsWith("_")) continue;
+    const oldVal = existing[k];
+    if (JSON.stringify(oldVal) !== JSON.stringify(v)) {
+      update[k] = v;
+      historyAdds.push({ at: now, by: user, field: k, from: oldVal, to: v });
+    }
+  }
+  if (!Object.keys(update).length) return existing;
+  update.updated_at = now;
+  update.history = [...(existing.history || []), ...historyAdds];
+  if (update.status === "CONCLUIDO" && !existing.completed_at) {
+    update.completed_at = now;
+  } else if (update.status && update.status !== "CONCLUIDO") {
+    update.completed_at = null;
+  }
+  const rows = await sb("PATCH", `/tasks?id=eq.${encodeURIComponent(id)}`, update);
+  return rows && rows[0];
+}
+
+async function apiCreateTask(payload) {
+  const user = state.currentUser || "Sistema";
+  const now = nowIso();
+  const newId = "N" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const task = {
+    id: newId,
+    category: payload.category || "Geral",
+    title: payload.title || "Nova tarefa",
+    description: payload.description || "",
+    status: payload.status || "BACKLOG",
+    responsible: payload.responsible || "",
+    notes: payload.notes || "",
+    deadline: payload.deadline || null,
+    priority: payload.priority || "normal",
+    checklist: payload.checklist || [],
+    history: [{ at: now, by: user, field: "created", from: null, to: payload.title || "Nova tarefa" }],
+    created_at: now,
+    updated_at: now,
+    completed_at: payload.status === "CONCLUIDO" ? now : null,
+  };
+  const rows = await sb("POST", "/tasks", task);
+  // auto-add category to config if new
+  if (!state.categories.includes(task.category)) {
+    const newCats = [...state.categories, task.category].sort();
+    await sb("POST", "/config?on_conflict=key", [{ key: "categories", value: newCats }], "resolution=merge-duplicates");
+  }
+  return rows && rows[0];
+}
+
+async function apiDeleteTask(id) {
+  await sb("DELETE", `/tasks?id=eq.${encodeURIComponent(id)}`);
+}
+
+async function apiAddUser(name) {
+  const users = state.users.includes(name) ? state.users : [...state.users, name];
+  await sb("POST", "/config?on_conflict=key", [{ key: "users", value: users }], "resolution=merge-duplicates");
+  return users;
+}
+
+async function reloadAll() {
+  try {
+    const data = await apiGetData();
+    state.tasks = data.tasks;
+    state.users = data.users || [];
+    state.categories = data.categories || [];
+    renderAll();
+  } catch (e) {
+    console.error("Falha ao carregar dados:", e);
+    alert("Erro ao carregar dados do servidor. Verifique o console.");
+  }
+}
+
+// =============================================================
+// HELPERS
+// =============================================================
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+  }[c]));
+}
+function initials(name) {
+  if (!name) return "?";
+  return name.split(/\s+/).map(p => p[0]).slice(0,2).join("").toUpperCase();
+}
+function fmtDateShort(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+}
+function fmtDateTime(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleString("pt-BR", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
+}
+function dayKey(iso) {
+  const d = new Date(iso); if (isNaN(d)) return iso;
+  return d.toLocaleDateString("pt-BR", { day:"2-digit", month:"long", year:"numeric" });
+}
+function daysUntil(iso) {
+  if (!iso) return null;
+  const d = new Date(iso); if (isNaN(d)) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+function deadlineClass(iso) {
+  const d = daysUntil(iso);
+  if (d === null) return "";
+  if (d < 0) return "late";
+  if (d <= 7) return "soon";
+  return "";
+}
+function filteredTasks() {
+  const f = state.filter;
+  const q = (f.search || "").toLowerCase().trim();
+  return state.tasks.filter(t => {
+    if (f.cat && t.category !== f.cat) return false;
+    if (f.resp && t.responsible !== f.resp) return false;
+    if (f.prio && t.priority !== f.prio) return false;
+    if (q) {
+      const hay = (t.title + " " + t.category + " " + (t.responsible||"") + " " + (t.notes||"") + " " + (t.description||"")).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+// =============================================================
+// RENDER
+// =============================================================
+function renderAll() {
+  renderUserSelect();
+  renderFilters();
+  renderDashboard();
+  renderKanban();
+  renderList();
+  renderActivity();
+}
+
+function renderUserSelect() {
+  const sel = document.getElementById("user-select");
+  sel.innerHTML = "";
+  state.users.forEach(u => {
+    const o = document.createElement("option");
+    o.value = u; o.textContent = u;
+    if (u === state.currentUser) o.selected = true;
+    sel.appendChild(o);
+  });
+  const addOpt = document.createElement("option");
+  addOpt.value = "__add"; addOpt.textContent = "+ Adicionar pessoa...";
+  sel.appendChild(addOpt);
+}
+
+function renderFilters() {
+  const c = document.getElementById("filter-cat");
+  c.innerHTML = '<option value="">Todas</option>';
+  state.categories.forEach(cat => {
+    const o = document.createElement("option");
+    o.value = cat; o.textContent = cat;
+    if (cat === state.filter.cat) o.selected = true;
+    c.appendChild(o);
+  });
+  const r = document.getElementById("filter-resp");
+  r.innerHTML = '<option value="">Todos</option>';
+  const resps = [...new Set(state.tasks.map(t => t.responsible).filter(Boolean))];
+  resps.forEach(rs => {
+    const o = document.createElement("option");
+    o.value = rs; o.textContent = rs;
+    if (rs === state.filter.resp) o.selected = true;
+    r.appendChild(o);
+  });
+}
+
+// ---------- DASHBOARD ----------
+function renderDashboard() {
+  const tasks = state.tasks;
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === "CONCLUIDO").length;
+  const doing = tasks.filter(t => t.status === "EM ANDAMENTO").length;
+  const todo = tasks.filter(t => t.status === "A FAZER").length;
+  const late = tasks.filter(t => {
+    if (t.status === "CONCLUIDO") return false;
+    const d = daysUntil(t.deadline);
+    return d !== null && d < 0;
+  }).length;
+
+  document.getElementById("metrics").innerHTML = `
+    <div class="metric total"><div class="lbl">Total</div><div class="num">${total}</div><div class="sub">tarefas no projeto</div></div>
+    <div class="metric done"><div class="lbl">Concluídas</div><div class="num">${done}</div><div class="sub">${total ? Math.round(done/total*100) : 0}% do total</div></div>
+    <div class="metric doing"><div class="lbl">Em Andamento</div><div class="num">${doing}</div><div class="sub">trabalho ativo</div></div>
+    <div class="metric todo"><div class="lbl">A Fazer</div><div class="num">${todo}</div><div class="sub">priorizadas</div></div>
+    <div class="metric late"><div class="lbl">Atrasadas</div><div class="num">${late}</div><div class="sub">prazo vencido</div></div>
+  `;
+
+  // progress per category
+  const pl = document.getElementById("progress-list");
+  pl.innerHTML = "";
+  state.categories.forEach(cat => {
+    const items = tasks.filter(t => t.category === cat);
+    if (!items.length) return;
+    const d = items.filter(t => t.status === "CONCLUIDO").length;
+    const dn = items.filter(t => t.status === "EM ANDAMENTO").length;
+    const td = items.filter(t => t.status === "A FAZER").length;
+    const bk = items.filter(t => t.status === "BACKLOG").length;
+    const tot = items.length;
+    const pctDone = Math.round(d/tot*100);
+    const row = document.createElement("div");
+    row.className = "progress-row";
+    row.innerHTML = `
+      <div class="name">${escapeHtml(cat)}</div>
+      <div class="bar">
+        <span class="b-done" style="width:${d/tot*100}%"></span>
+        <span class="b-doing" style="width:${dn/tot*100}%"></span>
+        <span class="b-todo" style="width:${td/tot*100}%"></span>
+        <span class="b-backlog" style="width:${bk/tot*100}%"></span>
+      </div>
+      <div class="pct">${pctDone}%</div>
+    `;
+    pl.appendChild(row);
+  });
+
+  // deadlines
+  const dl = document.getElementById("deadline-list");
+  const upcoming = tasks
+    .filter(t => t.deadline && t.status !== "CONCLUIDO")
+    .sort((a,b) => new Date(a.deadline) - new Date(b.deadline))
+    .slice(0, 6);
+  if (!upcoming.length) {
+    dl.innerHTML = `<div class="empty">Nenhuma tarefa com prazo definido ainda. Defina prazos clicando numa tarefa.</div>`;
+  } else {
+    dl.innerHTML = "";
+    upcoming.forEach(t => {
+      const d = new Date(t.deadline);
+      const cls = deadlineClass(t.deadline);
+      const days = daysUntil(t.deadline);
+      const item = document.createElement("div");
+      item.className = "deadline-item " + cls;
+      item.innerHTML = `
+        <div class="date">
+          <div class="day">${String(d.getDate()).padStart(2,"0")}</div>
+          <div class="month">${d.toLocaleDateString("pt-BR",{month:"short"}).replace(".","")}</div>
+        </div>
+        <div class="info">
+          <div class="ttl" data-task="${t.id}">${escapeHtml(t.title)}</div>
+          <div class="meta">${escapeHtml(t.category)} · ${escapeHtml(t.responsible || "sem responsável")} · ${days < 0 ? `<span style="color:var(--pink)">atrasado ${Math.abs(days)}d</span>` : `em ${days}d`}</div>
+        </div>
+      `;
+      item.querySelector(".ttl").addEventListener("click", () => openModal(t.id));
+      dl.appendChild(item);
+    });
+  }
+
+  // recent activity
+  const recents = [];
+  tasks.forEach(t => (t.history || []).forEach(h => recents.push({ ...h, task: t })));
+  recents.sort((a,b) => new Date(b.at) - new Date(a.at));
+  const ra = document.getElementById("recent-activity");
+  ra.innerHTML = "";
+  if (!recents.length) {
+    ra.innerHTML = `<div class="empty">Nenhuma atividade ainda.</div>`;
+  } else {
+    recents.slice(0, 8).forEach(h => {
+      const item = document.createElement("div");
+      item.className = "activity-item";
+      item.innerHTML = `
+        <div class="dot"></div>
+        <div style="flex:1;">
+          <div class="text"><b class="who">${escapeHtml(h.by)}</b> ${activityText(h)}</div>
+          <div class="when">${fmtDateTime(h.at)}</div>
+        </div>
+      `;
+      ra.appendChild(item);
+    });
+  }
+}
+
+function activityText(h) {
+  const taskLink = `<b style="cursor:pointer" onclick="openModal('${h.task.id}')">${escapeHtml(h.task.title)}</b>`;
+  if (h.field === "created") return `criou a tarefa ${taskLink}`;
+  if (h.field === "status") {
+    const fromTxt = h.from ? STATUS_LABEL[h.from] || h.from : "—";
+    const toTxt = STATUS_LABEL[h.to] || h.to;
+    return `mudou status de ${taskLink} de <span class="from-to">${escapeHtml(fromTxt)} → ${escapeHtml(toTxt)}</span>`;
+  }
+  if (h.field === "responsible") return `atribuiu ${taskLink} a <b>${escapeHtml(h.to || "ninguém")}</b>`;
+  if (h.field === "deadline") return `definiu prazo de ${taskLink} para <b>${fmtDateShort(h.to) || "—"}</b>`;
+  if (h.field === "priority") return `mudou prioridade de ${taskLink} para <b>${escapeHtml(h.to)}</b>`;
+  if (h.field === "title") return `renomeou tarefa para ${taskLink}`;
+  if (h.field === "description") return `atualizou descrição de ${taskLink}`;
+  if (h.field === "notes") return `atualizou notas de ${taskLink}`;
+  if (h.field === "checklist") return `atualizou checklist de ${taskLink}`;
+  if (h.field === "category") return `moveu ${taskLink} para área <b>${escapeHtml(h.to)}</b>`;
+  return `atualizou ${taskLink}`;
+}
+
+// ---------- KANBAN ----------
+function renderKanban() {
+  const board = document.getElementById("kanban-board");
+  board.innerHTML = "";
+  const tasks = filteredTasks();
+  STATUSES.forEach(st => {
+    const col = document.createElement("div");
+    col.className = "kanban-col col";
+    col.dataset.status = st;
+    col.setAttribute("data-status", st);
+    const items = tasks.filter(t => t.status === st);
+    col.innerHTML = `
+      <div class="col-header">
+        <div class="title-wrap">
+          <span class="dot"></span>
+          <span class="name">${STATUS_LABEL[st]}</span>
+        </div>
+        <span class="count">${items.length}</span>
+      </div>
+      <div class="col-cards"></div>
+      <button class="col-add">+ Adicionar tarefa</button>
+    `;
+    const cardsEl = col.querySelector(".col-cards");
+    items.forEach(t => cardsEl.appendChild(buildCard(t)));
+    col.querySelector(".col-add").addEventListener("click", () => openNewTaskModal({ status: st }));
+
+    // drag/drop
+    col.addEventListener("dragover", e => { e.preventDefault(); col.classList.add("drag-over"); });
+    col.addEventListener("dragleave", () => col.classList.remove("drag-over"));
+    col.addEventListener("drop", async e => {
+      e.preventDefault();
+      col.classList.remove("drag-over");
+      const id = e.dataTransfer.getData("text/plain");
+      const task = state.tasks.find(t => t.id === id);
+      if (task && task.status !== st) {
+        await apiUpdateTask(id, { status: st });
+        await reloadAll();
+      }
+    });
+    board.appendChild(col);
+  });
+}
+
+function buildCard(t) {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.draggable = true;
+  el.dataset.prio = t.priority || "normal";
+  el.dataset.id = t.id;
+  const dlClass = deadlineClass(t.deadline);
+  const checklist = t.checklist || [];
+  const cklDone = checklist.filter(c => c.done).length;
+  el.innerHTML = `
+    <div class="top">
+      <span class="cat">${escapeHtml(t.category)}</span>
+      <span class="id">${escapeHtml(t.id)}</span>
+    </div>
+    <div class="title">${escapeHtml(t.title)}</div>
+    <div class="bottom">
+      <span class="resp">
+        <span class="avatar ${t.responsible ? "" : "empty"}">${initials(t.responsible)}</span>
+        ${escapeHtml(t.responsible || "—")}
+      </span>
+      <span style="display:flex;gap:6px;align-items:center;">
+        ${checklist.length ? `<span class="checklist-mini">✓ ${cklDone}/${checklist.length}</span>` : ""}
+        ${t.deadline ? `<span class="deadline ${dlClass}">${fmtDateShort(t.deadline)}</span>` : ""}
+      </span>
+    </div>
+  `;
+  el.addEventListener("dragstart", e => {
+    e.dataTransfer.setData("text/plain", t.id);
+    el.classList.add("dragging");
+  });
+  el.addEventListener("dragend", () => el.classList.remove("dragging"));
+  el.addEventListener("click", () => openModal(t.id));
+  return el;
+}
+
+// ---------- LIST ----------
+let listSort = { field: "updated_at", dir: -1 };
+function renderList() {
+  const tbody = document.getElementById("list-body");
+  tbody.innerHTML = "";
+  let tasks = filteredTasks();
+  tasks.sort((a, b) => {
+    const av = a[listSort.field] || "";
+    const bv = b[listSort.field] || "";
+    if (av < bv) return -1 * listSort.dir;
+    if (av > bv) return 1 * listSort.dir;
+    return 0;
+  });
+  tasks.forEach(t => {
+    const tr = document.createElement("tr");
+    const stKey = (t.status || "").replace(/\s/g,"");
+    tr.innerHTML = `
+      <td style="color:var(--muted-2);font-weight:600;">${escapeHtml(t.id)}</td>
+      <td><b>${escapeHtml(t.title)}</b></td>
+      <td><span style="font-size:11px;color:var(--gold);">${escapeHtml(t.category)}</span></td>
+      <td><span class="status-pill pill-${stKey}">${STATUS_LABEL[t.status] || t.status}</span></td>
+      <td>${escapeHtml(t.responsible || "—")}</td>
+      <td><span class="status-pill pill-${t.priority||"normal"}">${t.priority || "normal"}</span></td>
+      <td>${t.deadline ? fmtDateShort(t.deadline) : "—"}</td>
+      <td style="color:var(--muted);font-size:11px;">${fmtDateTime(t.updated_at)}</td>
+    `;
+    tr.addEventListener("click", () => openModal(t.id));
+    tbody.appendChild(tr);
+  });
+}
+
+// ---------- ACTIVITY ----------
+function renderActivity() {
+  const feed = document.getElementById("activity-feed");
+  feed.innerHTML = "";
+  const all = [];
+  state.tasks.forEach(t => (t.history || []).forEach(h => all.push({ ...h, task: t })));
+  all.sort((a,b) => new Date(b.at) - new Date(a.at));
+  if (!all.length) {
+    feed.innerHTML = `<div class="empty">Nenhuma atividade registrada.</div>`;
+    return;
+  }
+  const groups = {};
+  all.forEach(h => {
+    const k = dayKey(h.at);
+    (groups[k] = groups[k] || []).push(h);
+  });
+  Object.entries(groups).forEach(([day, items]) => {
+    const sect = document.createElement("div");
+    sect.className = "activity-day";
+    sect.innerHTML = `<div class="day-label">${day}</div>`;
+    items.forEach(h => {
+      const card = document.createElement("div");
+      card.className = "activity-card";
+      card.innerHTML = `
+        <div class="ava">${initials(h.by)}</div>
+        <div class="body">
+          <div class="what"><span class="who">${escapeHtml(h.by)}</span> ${activityText(h)}</div>
+        </div>
+        <div class="time">${fmtDateTime(h.at)}</div>
+      `;
+      sect.appendChild(card);
+    });
+    feed.appendChild(sect);
+  });
+}
+
+// =============================================================
+// MODAL
+// =============================================================
+function openModal(taskId) {
+  const t = state.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  state.editing = JSON.parse(JSON.stringify(t));
+  state.isNew = false;
+  fillModal();
+  document.getElementById("modal-bg").classList.add("open");
+}
+
+function openNewTaskModal(prefill = {}) {
+  state.editing = {
+    id: "(novo)",
+    title: "",
+    category: prefill.category || state.categories[0] || "Geral",
+    status: prefill.status || "BACKLOG",
+    responsible: "",
+    description: "",
+    notes: "",
+    deadline: null,
+    priority: "normal",
+    checklist: [],
+    history: [],
+  };
+  state.isNew = true;
+  fillModal();
+  document.getElementById("modal-bg").classList.add("open");
+}
+
+function fillModal() {
+  const t = state.editing;
+  document.getElementById("m-breadcrumb").textContent = `${state.isNew ? "Nova tarefa" : "Tarefa #" + t.id} · ${t.category}`;
+  document.getElementById("m-title").value = t.title || "";
+
+  const sr = document.getElementById("m-status-row");
+  sr.innerHTML = "";
+  STATUSES.forEach(st => {
+    const b = document.createElement("button");
+    b.className = "status-pill-btn" + (t.status === st ? " active" : "");
+    b.dataset.status = st;
+    b.textContent = STATUS_LABEL[st];
+    b.addEventListener("click", () => {
+      t.status = st;
+      [...sr.children].forEach(c => c.classList.toggle("active", c.dataset.status === st));
+    });
+    sr.appendChild(b);
+  });
+
+  const cs = document.getElementById("m-category");
+  cs.innerHTML = "";
+  state.categories.forEach(c => {
+    const o = document.createElement("option"); o.value = c; o.textContent = c;
+    if (c === t.category) o.selected = true;
+    cs.appendChild(o);
+  });
+
+  const rs = document.getElementById("m-responsible");
+  rs.innerHTML = '<option value="">— Sem responsável —</option>';
+  state.users.forEach(u => {
+    const o = document.createElement("option"); o.value = u; o.textContent = u;
+    if (u === t.responsible) o.selected = true;
+    rs.appendChild(o);
+  });
+  // also include any responsible that isn't in users yet
+  if (t.responsible && !state.users.includes(t.responsible)) {
+    const o = document.createElement("option"); o.value = t.responsible; o.textContent = t.responsible; o.selected = true;
+    rs.appendChild(o);
+  }
+
+  document.getElementById("m-deadline").value = t.deadline || "";
+  document.getElementById("m-priority").value = t.priority || "normal";
+  document.getElementById("m-description").value = t.description || "";
+  document.getElementById("m-notes").value = t.notes || "";
+
+  renderChecklist();
+  renderHistory();
+}
+
+function renderChecklist() {
+  const list = document.getElementById("m-checklist");
+  const items = state.editing.checklist || [];
+  list.innerHTML = "";
+  items.forEach((item, idx) => {
+    const row = document.createElement("div");
+    row.className = "checklist-item" + (item.done ? " done" : "");
+    row.innerHTML = `
+      <input type="checkbox" ${item.done ? "checked" : ""}>
+      <input type="text" value="${escapeHtml(item.text)}">
+      <button class="del" title="Remover">×</button>
+    `;
+    row.querySelector('input[type="checkbox"]').addEventListener("change", e => {
+      items[idx].done = e.target.checked;
+      renderChecklist();
+    });
+    row.querySelector('input[type="text"]').addEventListener("input", e => {
+      items[idx].text = e.target.value;
+    });
+    row.querySelector(".del").addEventListener("click", () => {
+      items.splice(idx, 1);
+      renderChecklist();
+    });
+    list.appendChild(row);
+  });
+  const done = items.filter(i => i.done).length;
+  document.getElementById("m-checklist-count").textContent = items.length ? `(${done}/${items.length})` : "";
+  document.getElementById("m-checklist-bar").style.width = items.length ? `${done/items.length*100}%` : "0%";
+}
+
+function renderHistory() {
+  const el = document.getElementById("m-history");
+  const hist = (state.editing.history || []).slice().reverse();
+  if (!hist.length) {
+    el.innerHTML = `<div class="empty" style="text-align:left;padding:0;">Nenhuma alteração registrada ainda.</div>`;
+    return;
+  }
+  el.innerHTML = "";
+  hist.forEach(h => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    let txt = "";
+    if (h.field === "created") txt = `<b>${escapeHtml(h.by)}</b> criou a tarefa`;
+    else if (h.field === "status") txt = `<b>${escapeHtml(h.by)}</b> mudou status para <span class="ft">${STATUS_LABEL[h.to]||h.to}</span>`;
+    else if (h.field === "responsible") txt = `<b>${escapeHtml(h.by)}</b> atribuiu para <span class="ft">${escapeHtml(h.to||"ninguém")}</span>`;
+    else if (h.field === "deadline") txt = `<b>${escapeHtml(h.by)}</b> definiu prazo: <span class="ft">${fmtDateShort(h.to)||"—"}</span>`;
+    else if (h.field === "priority") txt = `<b>${escapeHtml(h.by)}</b> mudou prioridade para <span class="ft">${escapeHtml(h.to)}</span>`;
+    else if (h.field === "checklist") txt = `<b>${escapeHtml(h.by)}</b> atualizou checklist`;
+    else txt = `<b>${escapeHtml(h.by)}</b> atualizou <span class="ft">${escapeHtml(h.field)}</span>`;
+    div.innerHTML = `<div class="h-when">${fmtDateTime(h.at)}</div><div class="h-text">${txt}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function closeModal() {
+  document.getElementById("modal-bg").classList.remove("open");
+  state.editing = null;
+}
+
+async function saveModal() {
+  const t = state.editing;
+  t.title = document.getElementById("m-title").value.trim() || "Sem título";
+  t.category = document.getElementById("m-category").value;
+  t.responsible = document.getElementById("m-responsible").value;
+  t.deadline = document.getElementById("m-deadline").value || null;
+  t.priority = document.getElementById("m-priority").value;
+  t.description = document.getElementById("m-description").value;
+  t.notes = document.getElementById("m-notes").value;
+
+  if (state.isNew) {
+    await apiCreateTask({
+      title: t.title, category: t.category, status: t.status,
+      responsible: t.responsible, deadline: t.deadline, priority: t.priority,
+      description: t.description, notes: t.notes, checklist: t.checklist,
+    });
+  } else {
+    await apiUpdateTask(t.id, {
+      title: t.title, category: t.category, status: t.status,
+      responsible: t.responsible, deadline: t.deadline, priority: t.priority,
+      description: t.description, notes: t.notes, checklist: t.checklist,
+    });
+  }
+  closeModal();
+  await reloadAll();
+}
+
+async function deleteFromModal() {
+  if (state.isNew) { closeModal(); return; }
+  if (!confirm(`Excluir a tarefa "${state.editing.title}"?`)) return;
+  await apiDeleteTask(state.editing.id);
+  closeModal();
+  await reloadAll();
+}
+
+// =============================================================
+// EVENTS
+// =============================================================
+function bindEvents() {
+  // Tabs
+  document.querySelectorAll(".tabs button").forEach(b => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".tabs button").forEach(x => x.classList.remove("active"));
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      b.classList.add("active");
+      document.getElementById("view-" + b.dataset.view).classList.add("active");
+    });
+  });
+
+  // User picker
+  document.getElementById("user-select").addEventListener("change", async e => {
+    if (e.target.value === "__add") {
+      const name = prompt("Nome da pessoa:");
+      if (name && name.trim()) {
+        await apiAddUser(name.trim());
+        state.currentUser = name.trim();
+        localStorage.setItem("ee_user", state.currentUser);
+        await reloadAll();
+      } else {
+        renderUserSelect();
+      }
+    } else {
+      state.currentUser = e.target.value;
+      localStorage.setItem("ee_user", state.currentUser);
+    }
+  });
+
+  // Search
+  document.getElementById("search").addEventListener("input", e => {
+    state.filter.search = e.target.value;
+    renderKanban(); renderList();
+  });
+
+  // Filters
+  document.getElementById("filter-cat").addEventListener("change", e => { state.filter.cat = e.target.value; renderKanban(); renderList(); });
+  document.getElementById("filter-resp").addEventListener("change", e => { state.filter.resp = e.target.value; renderKanban(); renderList(); });
+  document.getElementById("filter-prio").addEventListener("change", e => { state.filter.prio = e.target.value; renderKanban(); renderList(); });
+
+  // List sort
+  document.querySelectorAll(".list-table th").forEach(th => {
+    th.addEventListener("click", () => {
+      const f = th.dataset.sort;
+      if (listSort.field === f) listSort.dir *= -1;
+      else { listSort.field = f; listSort.dir = 1; }
+      renderList();
+    });
+  });
+
+  // New task
+  document.getElementById("new-task-btn").addEventListener("click", () => openNewTaskModal());
+
+  // Modal
+  document.getElementById("m-cancel").addEventListener("click", closeModal);
+  document.getElementById("m-save").addEventListener("click", saveModal);
+  document.getElementById("m-delete").addEventListener("click", deleteFromModal);
+  document.getElementById("modal-bg").addEventListener("click", e => {
+    if (e.target.id === "modal-bg") closeModal();
+  });
+  document.getElementById("m-checklist-add").addEventListener("click", () => {
+    state.editing.checklist = state.editing.checklist || [];
+    state.editing.checklist.push({ text: "", done: false });
+    renderChecklist();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeModal();
+  });
+}
+
+// expose for inline handlers
+window.openModal = openModal;
+
+// =============================================================
+// INIT
+// =============================================================
+(async function init() {
+  bindEvents();
+  await reloadAll();
+})();
+</script>
+</body>
+</html>
